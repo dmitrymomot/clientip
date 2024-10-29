@@ -26,14 +26,10 @@ func Middleware(headers ...string) func(http.Handler) http.Handler {
 
 // IpToContext is a middleware that sets the client's IP address in the request context.
 // This IP address can be used in the next handler.
-func IpToContext(ctxKey any) func(http.Handler) http.Handler {
-	return func(h http.Handler) http.Handler {
-		fn := func(w http.ResponseWriter, r *http.Request) {
-			// Get user ip address and set it to the request context
-			// This ip address can be used in the next handler
-			h.ServeHTTP(w, r.WithContext(SetIPAddress(r.Context(), r.RemoteAddr)))
-		}
-
-		return http.HandlerFunc(fn)
-	}
+func IpToContext(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Get user ip address and set it to the request context
+		// This ip address can be used in the next handler
+		next.ServeHTTP(w, r.WithContext(SetIPAddress(r.Context(), r.RemoteAddr)))
+	})
 }
